@@ -1,6 +1,5 @@
 package com.model;
 
-
 public class TreeNode {
 
     private int value;
