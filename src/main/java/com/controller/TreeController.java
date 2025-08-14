@@ -1,7 +1,7 @@
 package com.controller;
 
-import com.bstapp.model.TreeResult;
-import com.bstapp.service.TreeService;
+import com.model.TreeResult;
+import com.service.TreeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
