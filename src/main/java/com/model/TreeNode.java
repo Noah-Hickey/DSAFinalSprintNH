@@ -10,18 +10,30 @@ public class TreeNode {
         this.value = value;
         this.left = null;
         this.right = null;
+    }
 
-        // Getters and Setters
-        public int getValue() { return value; }
+    // Getters and Setters
+    public int getValue() {
+        return value;
+    }
 
-        public void setValue(int value) { this.value = value; }
+    public void setValue(int value) {
+        this.value = value;
+    }
 
-        public TreeNode getLeft() { return left; }
+    public TreeNode getLeft() {
+        return left;
+    }
 
-        public void setLeft(TreeNode left) { this.left = left; }
+    public void setLeft(TreeNode left) {
+        this.left = left;
+    }
 
-        public TreeNode getRight() { return right; }
+    public TreeNode getRight() {
+        return right;
+    }
 
-        public void setRight(TreeNode right) { this.right = right; }
-
+    public void setRight(TreeNode right) {
+        this.right = right;
+    }
 }

@@ -1,7 +1,11 @@
 package com.model;
 
-public class BinarySearchTree {
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 
+public class BinarySearchTree {
     private TreeNode root;
 
     public BinarySearchTree() {
@@ -29,7 +33,7 @@ public class BinarySearchTree {
         return root;
     }
 
-    // Converts the tree to a JSON string //
+    // Converts the tree to a JSON string
     public String toJson() {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -39,14 +43,14 @@ public class BinarySearchTree {
         }
     }
 
-    // List to hold in-order traversal results //
+    // List to hold in-order traversal results
     public List<Integer> inOrderTraversal() {
         List<Integer> result = new ArrayList<>();
         inOrderTraversalRecursive(root, result);
         return result;
     }
 
-    // Recursive method for in-order traversal //
+    // Recursive method for in-order traversal
     private void inOrderTraversalRecursive(TreeNode node, List<Integer> result) {
         if (node != null) {
             inOrderTraversalRecursive(node.getLeft(), result);
@@ -54,5 +58,4 @@ public class BinarySearchTree {
             inOrderTraversalRecursive(node.getRight(), result);
         }
     }
-
 }
