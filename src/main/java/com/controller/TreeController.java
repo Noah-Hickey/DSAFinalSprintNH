@@ -1,5 +1,6 @@
 package com.controller;
 
+import com.model.TreeNode;
 import com.model.TreeResult;
 import com.service.TreeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Controller
@@ -22,16 +24,18 @@ public class TreeController {
 
     @PostMapping("/process-numbers")
     @ResponseBody
-    public ResponseEntity<String> processNumbers(@RequestParam("numbers") String numbers) {
+    public ResponseEntity<TreeNode> processNumbers(@RequestParam("numbers") String numbers) {
         try {
-            String treeJson = treeService.processNumbers(numbers);
-            return ResponseEntity.ok(treeJson);
+            // Get the actual TreeNode object instead of JSON string
+            TreeNode rootNode = treeService.processNumbersAndGetTree(numbers);
+            return ResponseEntity.ok(rootNode);
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body("{\"error\":\"Invalid number format\"}");
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("{\"error\":\"Processing failed\"}");
+            return ResponseEntity.internalServerError().build();
         }
     }
+
 
     @GetMapping("/previous-trees")
     public String showPreviousTrees(Model model) {

@@ -14,5 +14,146 @@
 <a href="/enter-numbers">
     <button type="button">Create New Tree</button>
 </a>
+<script>
+const trees = /*[[${trees}]]*/ [];
+
+// Visualize all trees when page loads
+window.addEventListener('DOMContentLoaded', function() {
+if (trees && trees.length > 0) {
+trees.forEach(tree => {
+if (tree.treeStructure) {
+try {
+const treeData = JSON.parse(tree.treeStructure);
+visualizeTree(treeData, 'tree-viz-' + tree.id);
+} catch (e) {
+console.error('Error parsing tree structure:', e);
+document.getElementById('tree-viz-' + tree.id).innerHTML =
+'<p>Unable to visualize tree</p>';
+}
+}
+});
+}
+});
+
+function toggleJson(treeId) {
+const jsonContainer = document.getElementById('json-' + treeId);
+jsonContainer.classList.toggle('show');
+}
+
+function visualizeTree(treeData, containerId) {
+const container = document.getElementById(containerId);
+if (!container) return;
+
+container.innerHTML = '';
+
+if (!treeData || Object.keys(treeData).length === 0) {
+container.innerHTML = '<p style="text-align: center; color: #999;">Empty tree</p>';
+return;
+}
+
+const width = container.offsetWidth || 800;
+const height = 250;
+
+const svg = createSVG(width, height);
+container.appendChild(svg);
+
+const positions = calculatePositions(treeData, width, height);
+drawTree(svg, treeData, positions);
+}
+
+function createSVG(width, height) {
+const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+svg.setAttribute('width', width);
+svg.setAttribute('height', height);
+svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+return svg;
+}
+
+function calculatePositions(node, width, height) {
+const positions = {};
+const levelHeight = 50;
+
+function assignPositions(node, x, y, spread) {
+if (!node) return;
+
+positions[node.value] = { x, y };
+
+const nextY = y + levelHeight;
+const nextSpread = spread * 0.5;
+
+if (node.left) {
+assignPositions(node.left, x - spread, nextY, nextSpread);
+}
+if (node.right) {
+assignPositions(node.right, x + spread, nextY, nextSpread);
+}
+}
+
+assignPositions(node, width / 2, 30, width / 5);
+
+return positions;
+}
+
+function drawTree(svg, node, positions) {
+// Draw edges first
+function drawEdges(node) {
+if (!node) return;
+
+const parentPos = positions[node.value];
+
+if (node.left) {
+const childPos = positions[node.left.value];
+const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+line.setAttribute('x1', parentPos.x);
+line.setAttribute('y1', parentPos.y);
+line.setAttribute('x2', childPos.x);
+line.setAttribute('y2', childPos.y);
+line.setAttribute('class', 'edge');
+svg.appendChild(line);
+drawEdges(node.left);
+}
+
+if (node.right) {
+const childPos = positions[node.right.value];
+const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+line.setAttribute('x1', parentPos.x);
+line.setAttribute('y1', parentPos.y);
+line.setAttribute('x2', childPos.x);
+line.setAttribute('y2', childPos.y);
+line.setAttribute('class', 'edge');
+svg.appendChild(line);
+drawEdges(node.right);
+}
+}
+
+// Draw nodes
+function drawNodes(node) {
+if (!node) return;
+
+const pos = positions[node.value];
+
+const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+circle.setAttribute('cx', pos.x);
+circle.setAttribute('cy', pos.y);
+circle.setAttribute('r', 20);
+circle.setAttribute('class', 'node');
+svg.appendChild(circle);
+
+const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+text.setAttribute('x', pos.x);
+text.setAttribute('y', pos.y);
+text.setAttribute('class', 'node-text');
+text.textContent = node.value;
+svg.appendChild(text);
+
+drawNodes(node.left);
+drawNodes(node.right);
+}
+
+drawEdges(node);
+drawNodes(node);
+}
+/*]]>*/
+</script>
 </body>
 </html>

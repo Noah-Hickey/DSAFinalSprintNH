@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tree Result</title>
+</head>
+<body>
+<h1>Binary Search Tree Result</h1>
+
+<h3>Input Numbers:</h3>
+<p th:text="${inputNumbers}"></p>
+
+<h3>Tree Structure (JSON):</h3>
+<pre th:text="${treeJson}"></pre>
+
+<a href="/enter-numbers">Create Another Tree</a> |
+<a href="/previous-trees">View Previous Trees</a>
+</body>
+</html>

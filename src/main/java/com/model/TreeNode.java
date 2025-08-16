@@ -1,10 +1,15 @@
 package com.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TreeNode {
 
     private int value;
     private TreeNode left;
     private TreeNode right;
+
+    public TreeNode() {}
 
     public TreeNode(int value) {
         this.value = value;

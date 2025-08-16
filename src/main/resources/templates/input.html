@@ -4,14 +4,179 @@
     <title>Enter Numbers</title>
 </head>
 <body>
-<h1>Binary Search Tree Generator</h1>
-<form action="/process-numbers" method="post">
-    <label for="numbers">Enter numbers (comma or space separated):</label>
-    <input type="text" id="numbers" name="numbers" required>
-    <button type="submit">Submit</button>
-</form>
-<a href="/previous-trees">
-    <button type="button">Show Previous</button>
-</a>
+<div class="container">
+    <h1>Binary Search Tree Generator</h1>
+
+    <form id="treeForm">
+        <div class="form-group">
+            <label for="numbers">Enter numbers (comma or space separated):</label>
+            <input type="text" id="numbers" name="numbers" placeholder="e.g., 5, 3, 7, 1, 9" required>
+        </div>
+
+        <div class="button-group">
+            <button type="submit">Generate Tree</button>
+            <button type="button" class="secondary-btn" onclick="window.location.href='/previous-trees'">Show Previous Trees</button>
+        </div>
+    </form>
+
+    <div id="result">
+        <h2>Tree Structure</h2>
+        <div id="treeVisualization"></div>
+        <h3>JSON Representation:</h3>
+        <pre id="jsonOutput"></pre>
+    </div>
+</div>
+
+<script>
+    document.getElementById('treeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const numbersInput = document.getElementById('numbers').value;
+        const resultDiv = document.getElementById('result');
+
+        // Clear previous results
+        resultDiv.classList.remove('show');
+
+        fetch('/process-numbers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'numbers=' + encodeURIComponent(numbersInput)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display JSON
+                document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
+
+                // Visualize tree
+                visualizeTree(data);
+
+                // Show result div
+                resultDiv.classList.add('show');
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+                resultDiv.classList.add('show');
+            });
+    });
+
+    function visualizeTree(treeData) {
+        const container = document.getElementById('treeVisualization');
+        container.innerHTML = '';
+
+        if (!treeData || Object.keys(treeData).length === 0) {
+            container.innerHTML = '<p>Empty tree</p>';
+            return;
+        }
+
+        const width = container.offsetWidth || 800;
+        const height = 400;
+
+        const svg = createSVG(width, height);
+        container.appendChild(svg);
+
+        const positions = calculatePositions(treeData, width, height);
+        drawTree(svg, treeData, positions);
+    }
+
+    function createSVG(width, height) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        return svg;
+    }
+
+    function calculatePositions(node, width, height) {
+        const positions = {};
+        const levelHeight = 70;
+
+        function assignPositions(node, x, y, spread) {
+            if (!node) return;
+
+            positions[node.value] = { x, y };
+
+            const nextY = y + levelHeight;
+            const nextSpread = spread * 0.5;
+
+            if (node.left) {
+                assignPositions(node.left, x - spread, nextY, nextSpread);
+            }
+            if (node.right) {
+                assignPositions(node.right, x + spread, nextY, nextSpread);
+            }
+        }
+
+        assignPositions(node, width / 2, 40, width / 4);
+
+        return positions;
+    }
+
+    function drawTree(svg, node, positions) {
+        // Draw edges first (so they appear behind nodes)
+        function drawEdges(node) {
+            if (!node) return;
+
+            const parentPos = positions[node.value];
+
+            if (node.left) {
+                const childPos = positions[node.left.value];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', parentPos.x);
+                line.setAttribute('y1', parentPos.y);
+                line.setAttribute('x2', childPos.x);
+                line.setAttribute('y2', childPos.y);
+                line.setAttribute('class', 'edge');
+                svg.appendChild(line);
+                drawEdges(node.left);
+            }
+
+            if (node.right) {
+                const childPos = positions[node.right.value];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', parentPos.x);
+                line.setAttribute('y1', parentPos.y);
+                line.setAttribute('x2', childPos.x);
+                line.setAttribute('y2', childPos.y);
+                line.setAttribute('class', 'edge');
+                svg.appendChild(line);
+                drawEdges(node.right);
+            }
+        }
+
+        // Draw nodes
+        function drawNodes(node) {
+            if (!node) return;
+
+            const pos = positions[node.value];
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', pos.x);
+            circle.setAttribute('cy', pos.y);
+            circle.setAttribute('r', 25);
+            circle.setAttribute('class', 'node');
+            svg.appendChild(circle);
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', pos.x);
+            text.setAttribute('y', pos.y);
+            text.setAttribute('class', 'node-text');
+            text.textContent = node.value;
+            svg.appendChild(text);
+
+            drawNodes(node.left);
+            drawNodes(node.right);
+        }
+
+        drawEdges(node);
+        drawNodes(node);
+    }
+</script>
 </body>
 </html>
